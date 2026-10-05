@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Viel's very cheesy pizza with accurate measurement shop</title>
+<style>
+:root{--ink:#2a1a10;--mut:#7d6a58;--line:#e8d9c3;--blue:#2563eb;--orange:#f97316;--purple:#7c3aed;--green:#16a34a;--red:#c2410c}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:var(--ink);background:#f6ecdc linear-gradient(180deg,#fbf3e6,#f1e2c8);min-height:100vh;padding:20px 14px 40px}
+header{max-width:1000px;margin:0 auto 14px}
+h1{margin:0;font-size:clamp(26px,5vw,40px);letter-spacing:-.5px}
+header p{margin:6px 0 0;color:var(--mut)}
+section{max-width:1000px;margin:16px auto;background:#fffdf8;border:2px solid var(--ink);border-radius:18px;padding:18px;box-shadow:6px 6px 0 var(--ink)}
+h2{margin:0 0 10px;font-size:22px}
+svg{width:100%;height:auto;display:block}
+.hint{font-size:13px;color:var(--mut);margin:8px 0 0}
+.vwrap{position:relative}
+.zoom{position:absolute;top:10px;right:10px;display:flex;gap:6px;z-index:2}
+.zoom button{height:38px;min-width:38px;padding:0 10px;font:700 20px inherit;font-family:inherit;border:2px solid var(--ink);border-radius:10px;background:#fff;color:var(--ink);cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.zoom button.wide{font-size:14px}
+.zoom button:active{transform:translate(1px,1px);box-shadow:none}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+.bar .hint{margin:0}
+.btn{font:700 15px inherit;font-family:inherit;padding:10px 16px;border:2px solid var(--ink);border-radius:12px;background:#ffd84a;color:var(--ink);cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn.danger{background:#fecaca}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;transform:none}
+.btn:focus-visible,.zoom button:focus-visible,.tog:focus-visible,.popx:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.zoom button[aria-pressed=true]{background:#ffd84a}
+#svg{cursor:default}
+#svg.hand,#svg.hand #slicesG{cursor:grab}
+#svg.drag,#svg.drag *{cursor:grabbing!important}
+#marksL{pointer-events:none}
+.eye{margin-left:auto;border:2px solid var(--ink);background:#fff;border-radius:8px;padding:4px 10px;font:700 13px inherit;font-family:inherit;cursor:pointer}
+.eye[aria-pressed=true]{background:#ffd84a}
+.eye:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.sl.col .eye{margin-left:0}
+.mtog{position:absolute;left:10px;bottom:10px;display:flex;flex-wrap:wrap;gap:6px;z-index:2;max-width:calc(100% - 20px)}
+.mtog button{height:34px;padding:0 12px;font:700 13px inherit;font-family:inherit;border:2px solid var(--ink);border-radius:999px;background:#fff;color:var(--ink);cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.mtog button[data-m][aria-pressed=true]{background:var(--mc);color:#fff}
+.mtog button[data-m][aria-pressed=false]{text-decoration:line-through;color:var(--mut)}
+.mtog button.all{background:#ffd84a}
+.mtog button:active{transform:translate(1px,1px);box-shadow:none}
+.mtog button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.pop{position:absolute;right:12px;bottom:12px;width:min(390px,calc(100% - 24px));max-height:68%;overflow:auto;background:#fffdf8;border:2px solid var(--ink);border-top:9px solid var(--pc);border-radius:14px;box-shadow:5px 5px 0 var(--ink);padding:12px 16px 14px;z-index:3}
+.pop[hidden]{display:none}
+.pop h3{margin:0 26px 6px 0;font-size:18px}
+.pop .fo{font:700 18px ui-monospace,Consolas,monospace;background:color-mix(in srgb,var(--pc) 14%,#fff);border-radius:10px;padding:8px 10px;margin:6px 0}
+.pop ol{margin:8px 0;padding-left:20px}
+.pop li{margin:9px 0;font-size:14px;line-height:1.5}
+.pop code{font:13px ui-monospace,Consolas,monospace;background:#f4ead8;padding:2px 6px;border-radius:6px;display:inline-block;margin-top:3px}
+.pop .ans{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--pc);color:#fff;font-weight:700;font-size:17px}
+.pop .why{font-size:13px;color:var(--mut);margin-top:8px;line-height:1.45}
+.popx{position:absolute;top:6px;right:10px;border:0;background:none;font-size:28px;line-height:1;cursor:pointer;color:var(--ink)}
+#pillsG g[role=button]:hover rect{stroke:#2a1a10}
+#pillsG g[role=button]:focus{outline:none}
+#pillsG g[role=button]:focus-visible rect{stroke:#2a1a10;stroke-width:3}
+.sl{border:2px solid var(--ink);border-radius:14px;background:#fff;margin-bottom:14px;overflow:hidden}
+.sl-h{display:flex;align-items:center;gap:10px;padding:9px 14px;background:color-mix(in srgb,var(--sc) 16%,#fff);border-bottom:2px solid var(--ink)}
+.sl.col .sl-h{border-bottom:0}
+.sl.col .sl-b{display:none}
+.sl-h h3{margin:0;font-size:18px}
+.bdg{width:28px;height:28px;border-radius:50%;background:var(--sc);color:#fff;font-weight:700;display:grid;place-items:center;border:2px solid var(--ink)}
+.tog{border:2px solid var(--ink);background:#fff;border-radius:8px;width:30px;height:30px;font-size:16px;cursor:pointer;transition:transform .15s}
+.sl.col .tog{transform:rotate(-90deg)}
+.sum{margin-left:auto;font-size:13px;color:var(--mut);display:none;text-align:right}
+.sl.col .sum{display:block}
+.sl-b{padding:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.f{border:1px solid var(--line);border-left:7px solid var(--c);border-radius:12px;padding:12px 14px;background:#fff}
+.f label{font-weight:700;font-size:15px}
+.row{display:flex;align-items:center;gap:8px;margin-top:8px}
+input[type=number],input[type=text]{width:100%;font:600 20px inherit;font-family:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:10px;color:var(--ink)}
+input[type=number]:focus-visible,input[type=text]:focus-visible,input[type=range]:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+input[aria-invalid=true]{border-color:#dc2626;background:#fff1f1}
+.unit{color:var(--mut);min-width:36px;font-size:14px}
+input[type=range]{width:100%;accent-color:var(--c);margin-top:10px}
+.fm{font:12px ui-monospace,Consolas,monospace;color:var(--mut);margin-top:6px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Viel's very cheesy pizza with accurate measurement shop</h1>
+  <p>Add slices, drag the knife, and watch every slice's radius, arc, angle and area respond.</p>
+</header>
+
+<section>
+  <h2>Visual</h2>
+  <div class="vwrap">
+    <div class="zoom"><button id="handBtn" type="button" aria-pressed="false" aria-label="Hand tool: move slices" title="Hand tool: drag slices around and back onto the pizza">✋</button><button id="zIn" type="button" aria-label="Zoom in">+</button><button id="zOut" type="button" aria-label="Zoom out">−</button><button id="zFit" type="button" class="wide">Fit pizza</button></div>
+    <svg id="svg" viewBox="0 0 760 620" role="img" aria-label="Pizza with slices showing radius, arc length, central angle and area">
+      <defs>
+        <pattern id="pat" patternUnits="userSpaceOnUse"><image id="texImg" href="image.png" preserveAspectRatio="xMidYMid slice"/></pattern>
+        <linearGradient id="bladeG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c3cbd2"/><stop offset=".55" stop-color="#f4f7f9"/><stop offset="1" stop-color="#8f9ba5"/></linearGradient>
+        <filter id="sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow id="shDrop" dx="0" dy="7" stdDeviation="6" flood-color="#000" flood-opacity=".32"/></filter>
+        <filter id="sh2" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity=".2"/></filter>
+      </defs>
+      <rect width="760" height="620" fill="#fffaf0"/>
+      <g id="grid" pointer-events="none"></g>
+      <g id="restG" filter="url(#sh2)"><g id="baseDyn"></g><circle id="wholeOut" fill="none" stroke="#9a5a12" stroke-width="5"/></g>
+      <g id="cheeseG" fill="none" stroke-linecap="round"></g>
+      <g id="slicesG"></g>
+      <g id="marksL"></g>
+      <g id="knife" style="cursor:grab"><g id="knifeRot">
+        <path id="blade" fill="url(#bladeG)" stroke="#6b7680" stroke-width="1.5" stroke-linejoin="round" filter="url(#sh2)"/>
+        <line id="bladeEdge" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        <rect id="handle" fill="#4a2c17" stroke="#2a1a10" stroke-width="2"/>
+        <circle id="rivet1" r="3" fill="#d9b36a"/><circle id="rivet2" r="3" fill="#d9b36a"/>
+        <rect id="grab" fill="transparent"/>
+      </g></g>
+      <g id="pillsG"></g>
+      <rect x="10" y="12" width="290" height="88" rx="14" fill="#fffdf8" fill-opacity=".93" stroke="#e8d9c3"/>
+      <circle cx="62" cy="56" r="34" fill="#efdcb8" stroke="#2a1a10" stroke-width="2"/>
+      <g id="miniPie"></g>
+      <text x="110" y="46" font-size="13" fill="#7d6a58">Slices cover</text>
+      <text id="miniTxt1" x="110" y="68" font-size="22" font-weight="700" fill="#2a1a10"></text>
+      <text id="miniTxt2" x="110" y="86" font-size="13" fill="#7d6a58"></text>
+    </svg>
+    <div class="mtog" role="group" aria-label="Show or hide measurements on the pizza">
+      <button id="mAll" class="all" type="button">Hide all</button>
+      <button type="button" data-m="r" style="--mc:#2563eb" aria-pressed="true">Radius</button>
+      <button type="button" data-m="A" style="--mc:#16a34a" aria-pressed="true">Area</button>
+      <button type="button" data-m="t" style="--mc:#7c3aed" aria-pressed="true">Angle</button>
+      <button type="button" data-m="s" style="--mc:#f97316" aria-pressed="true">Arc length</button>
+    </div>
+    <div id="pop" class="pop" role="dialog" aria-labelledby="popTitle" hidden><button id="popX" class="popx" type="button" aria-label="Close">×</button><h3 id="popTitle"></h3><div id="popBody"></div></div>
+  </div>
+  <div class="bar">
+    <button id="addBtn" class="btn" type="button">Add slice</button>
+    <button id="rmBtn" class="btn" type="button">Remove slice</button>
+    <button id="cutBtn" class="btn" type="button" aria-pressed="true">Uncut: put the slices back</button>
+    <button id="knifeBtn" class="btn" type="button" aria-pressed="true">Hide knife</button>
+    <button id="resetBtn" class="btn danger" type="button" title="Put everything back to how the page started">Reset</button>
+    <button id="gridBtn" class="btn" type="button" aria-pressed="false">Bring plane in front of pizza</button>
+    <span id="scaleNote" class="hint"></span>
+  </div>
+  <p class="hint">Click a label on the pizza (r, θ, A or s) to see how it is solved. Drag the knife around its slice to resize it, pull it out of the pizza to detach it, then drop it near either cut edge of any slice to attach it there. The knife always points at the pizza's center. Select the ✋ hand (top right of the visual) to drag slices around and drop them back on the pizza. To texture the pizza, save your picture as <b>image.png</b> in the same folder as this file.</p>
+</section>
+
+<section>
+  <h2>Input / Output</h2>
+  <div id="cards"></div>
+</section>
+
+<script>
+const NS='http://www.w3.org/2000/svg',TAU=Math.PI*2,PI=Math.PI,MINTH=0.02,MAXS=24,CX=270,CY=310;
+const COLORS=['#f97316','#2563eb','#16a34a','#7c3aed','#db2777','#0891b2','#ca8a04','#dc2626','#4f46e5','#059669','#d97706','#9333ea'];
+const $=id=>document.getElementById(id);
+const A=(el,o)=>{for(const k in o)el.setAttribute(k,o[k])};
+const mk=(tag,o,par)=>{const e=document.createElementNS(NS,tag);A(e,o||{});if(par)par.appendChild(e);return e};
+const f2=v=>v.toFixed(2).replace(/\.?0+$/,'');
+const md=x=>((x%TAU)+TAU)%TAU,wrap=x=>{x=md(x);return x>PI?x-TAU:x};
+
+/* ---------- radians as simplest π fraction ---------- */
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+function piParts(t){const d=t*180/PI;
+  for(let q=1;q<=360;q++){const p=Math.round(d*q/180),e=Math.abs(d-p*180/q);
+    if(p>0&&e<0.05)return{p,q,ap:e>0.005};}
+  const N=Math.round(d*100),g=gcd(N,18000);return{p:N/g,q:18000/g,ap:false};}
+const piText=t=>{const{p,q}=piParts(t),top=p===1?'π':p+'π';return q===1?top:top+'/'+q};
+const piEq=t=>(piParts(t).ap?'≈ ':'= ')+piText(t);
+function parseRad(str){
+  let t=str.toLowerCase().replace(/\s+/g,'').replace(/π/g,'pi');
+  if(!t||!/^[\d.+\-*/()pi]+$/.test(t))return NaN;
+  t=t.replace(/(\d|\))pi/g,'$1*pi').replace(/pi(\d|\()/g,'pi*$1').replace(/pi/g,'('+PI+')');
+  try{const v=Function('"use strict";return ('+t+')')();return typeof v==='number'?v:NaN}catch(e){return NaN}}
+
+/* ---------- slices ---------- */
+let slices=[],nid=1;
+const byId=id=>slices.find(s=>s.id===id);
+const Rmax=()=>Math.max(...slices.map(s=>s.r));
+function newSlice(r,a,th,doff){
+  const S={id:nid++,r,a,th,dr:r,da:a,dth:th,doff,collapsed:false};S.color=COLORS[(S.id-1)%COLORS.length];
+  S.g=mk('g',{},$('slicesG'));
+  const sh=mk('g',{filter:'url(#sh)'},S.g);
+  S.base=mk('path',{fill:'#ebb54f'},sh);S.crust=mk('path',{fill:'none',stroke:'#cf8a2e','stroke-width':12},sh);
+  S.tex=mk('path',{fill:'url(#pat)'},sh);S.out=mk('path',{fill:'none',stroke:'#9a5a12','stroke-width':2.5,'stroke-linejoin':'round'},sh);
+  S.m=mk('g',{},$('marksL'));
+  const dash={fill:'none','stroke-linecap':'round','stroke-dasharray':'9 8'};
+  S.aimH=mk('path',{...dash,stroke:'#fff','stroke-width':5},S.m);S.aim=mk('path',{...dash,stroke:'#2a1a10','stroke-width':2.5},S.m);
+  S.mm=mk('g',{},S.m);S.gt=mk('g',{},S.mm);S.gr=mk('g',{},S.mm);S.gs=mk('g',{},S.mm);
+  S.angH=mk('path',{fill:'none',stroke:'#fff','stroke-width':6,'stroke-linecap':'round'},S.gt);
+  S.ang=mk('path',{fill:'none',stroke:'#7c3aed','stroke-width':3,'stroke-linecap':'round'},S.gt);
+  S.radH=mk('line',{stroke:'#fff','stroke-width':7,'stroke-linecap':'round'},S.gr);
+  S.rad=mk('line',{stroke:'#2563eb','stroke-width':3.5,'stroke-linecap':'round'},S.gr);
+  S.dot=mk('circle',{r:5,fill:'#2563eb',stroke:'#fff','stroke-width':2},S.gr);
+  S.arcL=mk('path',{fill:'none',stroke:'#f97316','stroke-width':6,'stroke-linecap':'round'},S.gs);
+  S.t1=mk('line',{stroke:'#f97316','stroke-width':3,'stroke-linecap':'round'},S.gs);
+  S.t2=mk('line',{stroke:'#f97316','stroke-width':3,'stroke-linecap':'round'},S.gs);
+  S.bd=mk('circle',{r:13,fill:S.color,stroke:'#2a1a10','stroke-width':2},S.m);
+  S.bt=mk('text',{'text-anchor':'middle',fill:'#fff','font-size':14,'font-weight':700},S.m);
+  S.p={};[['r','#2563eb'],['t','#7c3aed'],['A','#16a34a'],['s','#f97316']].forEach(([k,col])=>{
+    const g=mk('g',{tabindex:0,role:'button',style:'cursor:pointer'},$('pillsG'));
+    mk('rect',{y:-12,height:24,rx:12,fill:col,stroke:'#fff','stroke-width':2},g);
+    mk('text',{y:4.5,'text-anchor':'middle',fill:'#fff','font-size':13,'font-weight':700},g);
+    g.addEventListener('pointerdown',e=>e.stopPropagation());
+    g.addEventListener('click',()=>openPop(k,S.id));
+    g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPop(k,S.id)}});
+    S.p[k]=g;});
+  S.cg=mk('g',{},$('cheeseG'));S.ch=[];
+  [-1,1].forEach(e=>[.18,.36,.54,.72,.9].forEach((f,i)=>S.ch.push({e,f,ph:i*1.3+(e>0?2:0),
+    d:mk('path',{stroke:'#d98a12'},S.cg),l:mk('path',{stroke:'#ffd84a'},S.cg)})));
+  S.fx=0;S.fy=0;S.dfx=0;S.dfy=0;S.hideM=false;   // fx,fy: hand-dragged offset in cm
+  S.g.addEventListener('pointerdown',e=>{if(!handOn)return;e.stopPropagation();e.preventDefault();
+    S.g.setPointerCapture(e.pointerId);const[mx,my]=toView(e);hd={S,lx:mx,ly:my};svgEl.classList.add('drag')});
+  S.g.addEventListener('pointermove',e=>{if(!hd||hd.S!==S)return;const[mx,my]=toView(e),ddx=(mx-hd.lx)/dsc,ddy=(my-hd.ly)/dsc;
+    S.fx+=ddx;S.fy+=ddy;S.dfx+=ddx;S.dfy+=ddy;hd.lx=mx;hd.ly=my});
+  S.g.addEventListener('pointerup',()=>endHand());S.g.addEventListener('pointercancel',()=>endHand());
+  return S;}
+function killSlice(S){S.g.remove();S.m.remove();S.cg.remove();Object.values(S.p).forEach(p=>p.remove())}
+
+/* free space around the circle: ga = gap after the slice, gb = gap before it.
+   nx / pv = neighbouring slices. Slices that touch share their cut line. */
+const JOIN=1e-6;
+function gaps(){
+  const L=[...slices].sort((p,q)=>md(p.a)-md(q.a)),n=L.length;
+  L.forEach((S,i)=>{let g=n===1?TAU-S.th:md(L[(i+1)%n].a-S.a-S.th);if(g>TAU-JOIN)g=0;S.ga=Math.max(0,g);
+    S.nx=n>1?L[(i+1)%n]:null;S.pv=n>1?L[(i-1+n)%n]:null});
+  L.forEach(S=>S.gb=S.pv?S.pv.ga:S.ga);}
+// move one cut line by dl (radians). If another slice touches that line, it gives or takes the space.
+function moveEdge(S,side,dl){
+  gaps();
+  if(side==='start'){const j=S.pv&&S.gb<JOIN;
+    dl=Math.max(j?-(S.pv.th-MINTH):-S.gb,Math.min(S.th-MINTH,dl));
+    S.a+=dl;S.th-=dl;if(j)S.pv.th+=dl;}
+  else{const j=S.nx&&S.ga<JOIN;
+    dl=Math.max(-(S.th-MINTH),Math.min(j?S.nx.th-MINTH:S.ga,dl));
+    S.th+=dl;if(j){S.nx.a+=dl;S.nx.th-=dl}}}
+function setTheta(S,t){moveEdge(S,'end',t-S.th)}
+
+/* ---------- section 2 cards ---------- */
+function cardHTML(S,i){
+  const f=(k,lab,c,unit,at,sl)=>`<div class="f" style="--c:var(--${c})"><label for="${k}${S.id}">${lab}</label><div class="row"><input type="number" id="${k}${S.id}" data-f="${k}" ${at} step="any"><span class="unit">${unit}</span></div>${sl?`<input type="range" data-f="${k}" ${sl} aria-label="${lab}">`:''}</div>`;
+  return `<div class="sl${S.collapsed?' col':''}" data-id="${S.id}" style="--sc:${S.color}">
+    <div class="sl-h"><button class="tog" type="button" aria-expanded="${!S.collapsed}" aria-label="Minimize or expand Slice ${i+1}">▾</button><span class="bdg">${i+1}</span><h3>Slice ${i+1}</h3><span class="sum"></span><button class="eye" type="button" aria-pressed="${S.hideM}">${S.hideM?'Show':'Hide'} measurements</button></div>
+    <div class="sl-b"><div class="grid">
+      ${f('r','Radius (r)','blue','cm','min="3" max="100"','min="3" max="100" step="0.1"')}
+      ${f('s','Arc length (s)','orange','cm','min="0"','min="0.1" step="0.01"')}
+      <div class="f" style="--c:var(--purple)"><label for="d${S.id}">Central angle (θ)</label><div class="row"><input type="number" id="d${S.id}" data-f="d" min="1" max="360" step="any"><span class="unit">degrees</span></div><input type="range" data-f="d" min="1" max="360" step="0.1" aria-label="Central angle in degrees">
+        <label for="g${S.id}" style="display:block;margin-top:12px;font-size:14px">In radians (type a π fraction)</label><div class="row"><input type="text" id="g${S.id}" data-f="rad" inputmode="text" autocomplete="off" spellcheck="false" placeholder="π/2"><span class="unit">radians</span></div><div class="fm">radians = degrees × (π / 180°)</div></div>
+      ${f('A','Area of the slice (A)','green','cm²','min="0"','')}
+    </div></div></div>`;}
+function renderCards(){$('cards').innerHTML=slices.map(cardHTML).join('');sync(null)}
+function sync(active){
+  gaps();
+  slices.forEach(S=>{
+    const c=document.querySelector(`.sl[data-id="${S.id}"]`);if(!c)return;
+    const s=S.r*S.th,Ar=.5*S.r*S.r*S.th,deg=S.th*180/PI,mx=S.th+S.ga+(S.nx&&S.ga<JOIN?S.nx.th-MINTH:0);
+    c.querySelector('input[type=range][data-f=s]').max=(S.r*mx).toFixed(2);
+    c.querySelector('input[type=range][data-f=d]').max=(mx*180/PI).toFixed(1);
+    const set=(k,v)=>c.querySelectorAll(`[data-f="${k}"]`).forEach(el=>{if(el!==active)el.value=k==='rad'?piText(S.th):f2(v)});
+    set('r',S.r);set('s',s);set('d',deg);set('rad',0);set('A',Ar);
+    c.querySelector('.sum').textContent=`θ = ${f2(deg)}°, s = ${f2(s)} cm, A = ${f2(Ar)} cm²`;
+  });
+  let free=0;slices.forEach(S=>free=Math.max(free,S.ga));
+  $('addBtn').disabled=slices.length>=MAXS;
+  $('addBtn').title=slices.length>=MAXS?'Maximum of '+MAXS+' slices':'';
+  $('rmBtn').disabled=slices.length<2;
+  if(popKind)renderPop();
+}
+$('cards').addEventListener('input',e=>{
+  const el=e.target,k=el.dataset.f;if(!k)return;const S=byId(+el.closest('.sl').dataset.id);
+  if(k==='rad'){const v=parseRad(el.value),ok=isFinite(v)&&v>0;el.setAttribute('aria-invalid',!ok);if(!ok)return;setTheta(S,v)}
+  else{const v=parseFloat(el.value);if(!isFinite(v)||v<=0)return;
+    if(k==='r'){S.r=Math.min(100,Math.max(3,v));fit()}
+    else if(k==='s')setTheta(S,v/S.r);else if(k==='d')setTheta(S,v*PI/180);else if(k==='A')setTheta(S,2*v/(S.r*S.r));}
+  sync(el);});
+$('cards').addEventListener('focusout',e=>{if(e.target.dataset.f==='rad'){
+  e.target.removeAttribute('aria-invalid');e.target.value=piText(byId(+e.target.closest('.sl').dataset.id).th)}});
+$('cards').addEventListener('click',e=>{
+  const eye=e.target.closest('.eye');
+  if(eye){const S=byId(+eye.closest('.sl').dataset.id);S.hideM=!S.hideM;
+    eye.setAttribute('aria-pressed',S.hideM);eye.textContent=(S.hideM?'Show':'Hide')+' measurements';return}
+  const b=e.target.closest('.tog');if(!b)return;
+  const c=b.closest('.sl'),S=byId(+c.dataset.id);S.collapsed=!S.collapsed;c.classList.toggle('col',S.collapsed);b.setAttribute('aria-expanded',!S.collapsed)});
+
+$('addBtn').addEventListener('click',()=>{
+  if(slices.length>=MAXS)return;
+  gaps();const o=slices[0],size=o.th;                 // new slices copy the original (first) slice
+  let best=slices[0];slices.forEach(S=>{if(S.ga>best.ga)best=S});
+  if(best.ga>=size-1e-6){slices.push(newSlice(o.r,best.a+best.th,size,0))}
+  else{                                                // not enough room: everything shrinks evenly so one more fits
+    const L=[...slices].sort((p,q)=>md(p.a)-md(q.a)),N=newSlice(o.r,0,size,0);
+    L.splice(L.indexOf(best)+1,0,N);slices.push(N);
+    const f=Math.min(1,TAU/L.reduce((t,S)=>t+S.th,0));let a=L[0].a;
+    L.forEach(S=>{S.th*=f;S.a=a;a+=S.th});N.da=N.a;N.dth=N.th;}
+  renderCards();fit();});
+$('rmBtn').addEventListener('click',()=>{
+  if(slices.length<2)return;const S=slices.pop();killSlice(S);
+  if(kn.sid===S.id){kn.sid=slices[0].id;kn.free=false}
+  if(popId===S.id)closePop();renderCards();fit();});
+
+/* ---------- view (zoom / pan), grid ---------- */
+slices.push(newSlice(15,-PI/8,PI/4,14+56*(PI/4/TAU)));
+const RANGES=[5,10,15,20,30,40,50,75,100];
+const target=()=>235/RANGES.find(v=>v>=Rmax());
+let ts=target(),dsc=ts,tvx=CX,tvy=CY,vx=CX,vy=CY,lastKey='',cutOn=true,popKind=null,popId=null,handOn=false,hd=null;
+const show={r:true,A:true,t:true,s:true};     // measurement types shown on the pizza
+const kn={sid:slices[0].id,free:false,on:true,wx:0,wy:0,rot:0,sy:1,side:'start'};
+const fit=()=>{ts=target();tvx=CX;tvy=CY};
+const gridG=$('grid');
+function drawGrid(sc){
+  const W=760,H=620,nice=[.01,.02,.05,.1,.2,.5,1,2,5,10,20,50,100,200,500];
+  const major=nice.find(v=>v*sc>=42)||500,div=major.toExponential(0)[0]==='2'?2:5,minor=major/div;
+  const x0=-vx/sc,x1=(W-vx)/sc,y0=-(H-vy)/sc,y1=vy/sc,lab=v=>+v.toFixed(3);
+  const lx=Math.min(Math.max(vx-7,34),W-6),ly=Math.min(Math.max(vy+15,14),H-6);
+  let mi='',ma='',lb='';
+  for(let k=Math.ceil(x0/minor);k*minor<=x1;k++){
+    const x=(vx+k*minor*sc).toFixed(1),seg=`M${x} 0V${H}`;
+    if(k%div===0){ma+=seg;if(k)lb+=`<text x="${x}" y="${ly}" text-anchor="middle">${lab(k*minor)}</text>`}else mi+=seg;}
+  for(let k=Math.ceil(y0/minor);k*minor<=y1;k++){
+    const y=(vy-k*minor*sc).toFixed(1),seg=`M0 ${y}H${W}`;
+    if(k%div===0){ma+=seg;if(k)lb+=`<text x="${lx}" y="${(+y+4).toFixed(1)}" text-anchor="end">${lab(k*minor)}</text>`}else mi+=seg;}
+  gridG.innerHTML=`<path d="${mi}" fill="none" stroke="#b49a78" stroke-opacity=".32"/><path d="${ma}" fill="none" stroke="#8a6f4c" stroke-opacity=".55"/>`+
+    `<path d="M0 ${vy}H${W}M${vx} 0V${H}" fill="none" stroke="#2a1a10" stroke-opacity=".85" stroke-width="1.6"/>`+
+    `<g font-size="11" font-weight="600" fill="#5a4630" stroke="#fffaf0" stroke-width="3" paint-order="stroke">${lb}<text x="${lx}" y="${ly}" text-anchor="end">0</text>`+
+    `<text x="${W-8}" y="${Math.min(Math.max(vy-8,24),H-22)}" text-anchor="end">x (cm)</text><text x="${Math.min(Math.max(vx+8,4),W-70)}" y="${H-10}">y (cm)</text></g>`;
+  $('scaleNote').textContent=`Origin (0, 0) is the pizza center. 1 unit = 1 cm. Bold lines every ${lab(major)} cm.`;}
+
+/* ---------- drawing ---------- */
+const pt=(a,rad)=>[vx+rad*Math.cos(a),vy+rad*Math.sin(a)];
+const ps=(a,rad)=>pt(a,rad).join(' ');
+const sector=(a1,a2,R)=>`M${vx} ${vy}L${ps(a1,R)}A${R} ${R} 0 ${a2-a1>PI?1:0} 1 ${ps(a2,R)}Z`;
+const arc=(a1,a2,R)=>`M${ps(a1,R)}A${R} ${R} 0 ${a2-a1>PI?1:0} 1 ${ps(a2,R)}`;
+function pill(g,x,y,txt){const w=txt.length*7.4+18;g.setAttribute('transform',`translate(${x} ${y})`);
+  const[rc,tx]=g.children;tx.textContent=txt;A(rc,{x:-w/2,width:w});return w}
+const bsec=(a1,a2,R,op,ol)=>{const d=sector(a1,a2,R);
+  return `<g opacity="${op}"><path d="${d}" fill="#ebb54f"/><path d="${arc(a1,a2,R-6)}" fill="none" stroke="#cf8a2e" stroke-width="12"/><path d="${d}" fill="url(#pat)"/><path d="${d}" fill="none" stroke="#9a5a12" stroke-width="2" stroke-linejoin="round" stroke-opacity="${ol}"/></g>`};
+const knifeGeom=R=>{const bw=Math.min(26,Math.max(8,R*.2));return{bs:.18*R,be:R+8,bw,hh:Math.max(10,bw*.7),hl:62}};
+function sp(S){const phi=S.da+S.dth/2,ox=S.doff*Math.cos(phi)+S.dfx*dsc,oy=S.doff*Math.sin(phi)+S.dfy*dsc;return{phi,ox,oy,len:Math.hypot(ox,oy)}}
+function knifePose(){
+  const S=!kn.free&&byId(kn.sid);
+  if(S){const p=sp(S),st=kn.side==='start';return{ox:vx+p.ox,oy:vy+p.oy,rot:st?S.da:S.da+S.dth,sy:st?1:-1,g:knifeGeom(S.dr*dsc),S}}
+  const g=knifeGeom(110),hx=g.be+g.hl/2,Wx=vx+kn.wx*dsc,Wy=vy+kn.wy*dsc,rot=Math.atan2(Wy-vy,Wx-vx);   // blade aims at the pizza center
+  return{ox:Wx-hx*Math.cos(rot),oy:Wy-hx*Math.sin(rot),rot,sy:kn.sy,g,S:null}}
+function endHand(){if(!hd)return;const S=hd.S,p=sp(S),R=S.dr*dsc;
+  const cx=p.ox+.6*R*Math.cos(p.phi),cy=p.oy+.6*R*Math.sin(p.phi);      // slice center, relative to the pizza center
+  if(Math.hypot(cx,cy)<=Rmax()*dsc||Math.hypot(S.fx,S.fy)*dsc<.5*R){S.fx=0;S.fy=0}   // dropped on the pizza: back in place
+  hd=null;svgEl.classList.remove('drag')}
+
+function draw(time){
+  const n=slices.length,Rp=Math.max(...slices.map(S=>S.dr))*dsc;
+  A($('pat'),{x:vx-Rp,y:vy-Rp,width:2*Rp,height:2*Rp});A($('texImg'),{width:2*Rp,height:2*Rp});
+  let km=0,tot=0;slices.forEach(S=>{S.k=Math.min(1,sp(S).len/10);km+=S.k;tot+=S.dth/TAU});km/=n;
+  // base pizza: dough in the gaps, plus the cut-out spots that fade in when uncut
+  const sorted=[...slices].sort((p,q)=>md(p.da)-md(q.da));let html='';
+  sorted.forEach((S,i)=>{const T=Math.min(S.dth,TAU-.002);
+    let g=n===1?TAU-T:md(sorted[(i+1)%n].da-S.da-T);if(g>TAU-1e-6)g=0;
+    if(S.k<1)html+=bsec(S.da,S.da+T,Rp,1-S.k,0);
+    if(g>.002)html+=bsec(S.da+T,S.da+T+g,Rp,1,km);});
+  $('baseDyn').innerHTML=html;A($('wholeOut'),{cx:vx,cy:vy,r:Rp,'stroke-opacity':1-km});
+  $('shDrop').setAttribute('flood-opacity',.32*Math.min(1,Math.max(...slices.map(S=>sp(S).len))/18));
+
+  slices.forEach((S,i)=>{
+    const T=Math.min(S.dth,TAU-.002),R=S.dr*dsc,a1=S.da,a2=S.da+T,phi=S.da+S.dth/2;
+    const dx=Math.cos(phi),dy=Math.sin(phi),{ox,oy,len}=sp(S),ax=vx+ox,ay=vy+oy,tr=`translate(${ox} ${oy})`;
+    S.g.setAttribute('transform',tr);S.m.setAttribute('transform',tr);
+    const d=sector(a1,a2,R);
+    A(S.base,{d});A(S.tex,{d});A(S.out,{d,'stroke-opacity':S.k});A(S.crust,{d:arc(a1,a2,R-6)});
+    // marks
+    const aim=`M${ps(a1,R)}L${vx} ${vy}L${ps(a2,R)}`,[rx,ry]=pt(phi,R);
+    A(S.aimH,{d:aim,'stroke-opacity':1-S.k});A(S.aim,{d:aim,'stroke-opacity':1-S.k});
+    A(S.radH,{x1:vx,y1:vy,x2:rx,y2:ry});A(S.rad,{x1:vx,y1:vy,x2:rx,y2:ry});A(S.dot,{cx:rx,cy:ry});
+    const ra=Math.min(.3*R,64);A(S.ang,{d:arc(a1,a2,ra)});A(S.angH,{d:arc(a1,a2,ra)});
+    A(S.arcL,{d:arc(a1,a2,R+14)});
+    [[S.t1,a1],[S.t2,a2]].forEach(([el,a])=>{const[x1,y1]=pt(a,R+5),[x2,y2]=pt(a,R+23);A(el,{x1,y1,x2,y2})});
+    const[bx,by]=pt(phi,.35*R);A(S.bd,{cx:bx,cy:by});A(S.bt,{x:bx,y:by+5});S.bt.textContent=i+1;
+    // labels (screen coordinates)
+    const s=S.dr*S.dth,Ar=.5*S.dr*S.dr*S.dth,deg=S.dth*180/PI;
+    pill(S.p.r,ax+.8*R*dx,ay+.8*R*dy,`r = ${f2(S.dr)} cm`);
+    pill(S.p.A,ax+.5*R*dx,ay+.5*R*dy-26,`A = ${f2(Ar)} cm²`);
+    pill(S.p.t,ax+(ra+46)*dx,ay+(ra+46)*dy+24,`θ = ${f2(deg)}° ${piEq(S.th)}`);
+    const wA=`s = ${f2(s)} cm`.length*7.4+18,dist=R+24+Math.abs(dx)*wA/2+Math.abs(dy)*12;
+    pill(S.p.s,ax+dist*dx,ay+dist*dy,`s = ${f2(s)} cm`);
+    S.mm.style.display=S.hideM?'none':'';
+    ['r','t','s'].forEach(k=>S['g'+k].style.display=show[k]?'':'none');
+    Object.keys(S.p).forEach(k=>S.p[k].style.display=S.hideM||!show[k]?'none':'');
+    // cheese
+    const L=Math.min(len,160),fade=S.k*Math.max(0,1-(len-80)/160);
+    S.cg.style.display=fade<.02?'none':'';S.cg.style.opacity=fade;
+    if(fade>=.02)S.ch.forEach(c=>{const ea=c.e<0?a1:a2,dd=R*c.f,px=vx+dd*Math.cos(ea),py=vy+dd*Math.sin(ea);
+      const sag=L*.35+6+Math.sin(time*2.2+c.ph)*L*.14,w=Math.max(1.6,6.5-L/16);
+      const p=`M${px} ${py}C${px+ox*.3} ${py+oy*.3+sag},${px+ox*.7} ${py+oy*.7+sag},${px+ox} ${py+oy}`;
+      A(c.d,{d:p,'stroke-width':w+2.2});A(c.l,{d:p,'stroke-width':w});});
+  });
+
+  // knife
+  $('knife').style.display=kn.on?'':'none';
+  const kp=knifePose(),kg=kp.g;
+  $('knifeRot').setAttribute('transform',`translate(${kp.ox} ${kp.oy}) rotate(${kp.rot*180/PI}) scale(1 ${kp.sy})`);
+  $('blade').setAttribute('d',`M${kg.bs} 0L${kg.be} 0L${kg.be} ${-kg.bw}L${kg.bs+kg.bw*1.2} ${-kg.bw}Q${kg.bs+kg.bw*.2} ${-kg.bw*.9} ${kg.bs} 0Z`);
+  A($('bladeEdge'),{x1:kg.bs,y1:0,x2:kg.be,y2:0});
+  A($('handle'),{x:kg.be,y:-kg.bw/2-kg.hh/2,width:kg.hl,height:kg.hh,rx:kg.hh/2});
+  A($('rivet1'),{cx:kg.be+kg.hl*.3,cy:-kg.bw/2});A($('rivet2'),{cx:kg.be+kg.hl*.7,cy:-kg.bw/2});
+  A($('grab'),{x:kg.bs,y:-kg.bw-8,width:kg.be+kg.hl-kg.bs,height:kg.bw+16});
+
+  // share of pizza
+  const mr=34;$('miniPie').innerHTML=slices.map(S=>{const T=Math.min(S.dth,TAU-.002),a1=S.da,a2=S.da+T,
+    x1=62+mr*Math.cos(a1),y1=56+mr*Math.sin(a1),x2=62+mr*Math.cos(a2),y2=56+mr*Math.sin(a2);
+    return `<path d="M62 56L${x1} ${y1}A${mr} ${mr} 0 ${T>PI?1:0} 1 ${x2} ${y2}Z" fill="${S.color}" stroke="#2a1a10" stroke-width="1.5"/>`}).join('');
+  $('miniTxt1').textContent=f2(tot*100)+'%';
+  $('miniTxt2').textContent=`${n} slice${n>1?'s':''} ${cutOn?'cut from':'marked on'} the pizza`;
+}
+function frame(t){
+  slices.forEach(S=>{S.dr+=(S.r-S.dr)*.2;S.da+=(S.a-S.da)*.3;S.dth+=(S.th-S.dth)*.3;S.doff+=((cutOn?14+56*(S.th/TAU):0)-S.doff)*.1;S.dfx+=(S.fx-S.dfx)*.25;S.dfy+=(S.fy-S.dfy)*.25});
+  dsc+=(ts-dsc)*.2;vx+=(tvx-vx)*.2;vy+=(tvy-vy)*.2;
+  const key=dsc.toFixed(4)+','+vx.toFixed(1)+','+vy.toFixed(1);
+  if(key!==lastKey){drawGrid(dsc);lastKey=key}
+  draw(t/1000);requestAnimationFrame(frame);}
+
+/* ---------- solution pop-up ---------- */
+function renderPop(){
+  const S=byId(popId);if(!S){closePop();return}
+  const th=S.th,r=S.r,deg=th*180/PI,s=r*th,Ar=.5*r*r*th,C=TAU*r,Wh=PI*r*r,rf=piText(th),eq=piEq(th),c=x=>`<code>${x}</code>`,nm=`Slice ${slices.indexOf(S)+1}: `;
+  const D={
+   A:{t:'How the area is found',c:'#16a34a',fo:'A = ½ · r² · θ',st:[
+     `Write the formula:<br>${c('A = ½ · r² · θ')}`,
+     `Substitute r and θ (θ is in radians, ${f2(deg)}° × π/180° = ${rf}):<br>${c(`A = ½ × ${f2(r)}² × ${rf}`)}`,
+     `Square the radius:<br>${c(`r² = ${f2(r)} × ${f2(r)} = ${f2(r*r)}`)}`,
+     `Multiply by ½:<br>${c(`½ × ${f2(r*r)} = ${f2(.5*r*r)}`)}`,
+     `Multiply by θ:<br>${c(`${f2(.5*r*r)} × ${rf} = ${f2(Ar)} cm²`)}`],
+     ans:`A = ${f2(Ar)} cm²`,why:'θ must be in radians for this formula. If you start with degrees, convert first with radians = degrees × π/180°.'},
+   s:{t:'How the arc length is found',c:'#f97316',fo:'s = r · θ',st:[
+     `Write the formula:<br>${c('s = r · θ')}`,
+     `Substitute r and θ (θ is in radians, ${f2(deg)}° × π/180° = ${rf}):<br>${c(`s = ${f2(r)} × ${rf}`)}`,
+     `Multiply:<br>${c(`s = ${f2(r)} × ${rf} = ${f2(s)} cm`)}`],
+     ans:`s = ${f2(s)} cm`,why:'θ must be in radians for this formula. One radian is the angle whose arc is exactly as long as the radius.'},
+   t:{t:'How the central angle is found',c:'#7c3aed',fo:'radians = degrees × (π / 180°)',st:[
+     `Start with the angle in degrees:<br>${c(`θ = ${f2(deg)}°`)}`,
+     `A half turn is 180° = π, so multiply by π/180°:<br>${c(`${f2(deg)}° × π/180° = ${f2(deg)}π/180`)}`,
+     `Simplify the fraction:<br>${c(eq)}${piParts(th).ap?' (nearest simple fraction)':''}`,
+     `Check with the arc, since θ = s ÷ r:<br>${c(`${f2(s)} ÷ ${f2(r)} = ${rf}`)}`],
+     ans:`θ ${eq}`,why:'A full turn is 360° = 2π. Measuring angles in radians (arc ÷ radius) is what makes s = rθ and A = ½r²θ work.'},
+   r:{t:'How the radius is found',c:'#2563eb',fo:'r = s ÷ θ',st:[
+     `The radius is the distance from the center to the crust:<br>${c(`r = ${f2(r)} cm`)}`,
+     `The diameter is two radii:<br>${c(`d = 2 × r = ${f2(2*r)} cm`)}`,
+     `Work backwards from the arc:<br>${c(`r = s ÷ θ = ${f2(s)} ÷ ${rf} = ${f2(r)} cm`)}`,
+     `Or from the area:<br>${c(`r = √(2A ÷ θ) = √(2 × ${f2(Ar)} ÷ ${rf}) = ${f2(r)} cm`)}`],
+     ans:`r = ${f2(r)} cm`,why:`The radius sets the size of the whole slice's circle: area π·r² = ${f2(Wh)} cm² and crust 2π·r = ${f2(C)} cm.`}
+  }[popKind];
+  $('pop').style.setProperty('--pc',D.c);$('popTitle').textContent=nm+D.t;
+  $('popBody').innerHTML=`<div class="fo">${D.fo}</div><ol>${D.st.map(x=>`<li>${x}</li>`).join('')}</ol><div class="ans">${D.ans}</div><div class="why">${D.why}</div>`;}
+function openPop(k,id){popKind=k;popId=id;$('pop').hidden=false;renderPop()}
+function closePop(){popKind=null;popId=null;$('pop').hidden=true}
+$('popX').addEventListener('click',closePop);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePop()});
+
+/* ---------- interaction: zoom, pan, knife ---------- */
+const svgEl=$('svg'),ptrs=new Map();let lastDist=0;
+svgEl.style.touchAction='none';
+const toView=e=>{const b=svgEl.getBoundingClientRect(),k=760/b.width;return[(e.clientX-b.left)*k,(e.clientY-b.top)*k]};
+function zoomAt(mx,my,f){const ns=Math.min(300,Math.max(.5,ts*f)),wx=(mx-tvx)/ts,wy=(my-tvy)/ts;ts=ns;tvx=mx-wx*ns;tvy=my-wy*ns}
+svgEl.addEventListener('wheel',e=>{e.preventDefault();const[mx,my]=toView(e);
+  zoomAt(mx,my,Math.exp(-e.deltaY*(e.deltaMode===1?33:1)*.0015));},{passive:false});
+svgEl.addEventListener('pointerdown',e=>{svgEl.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,toView(e));svgEl.classList.add('drag');lastDist=0;});
+svgEl.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;
+  const p=toView(e),o=ptrs.get(e.pointerId);ptrs.set(e.pointerId,p);
+  if(ptrs.size===1){const dx=p[0]-o[0],dy=p[1]-o[1];tvx+=dx;tvy+=dy;vx+=dx;vy+=dy;}
+  else if(ptrs.size===2){const[a,b]=[...ptrs.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);
+    if(lastDist)zoomAt((a[0]+b[0])/2,(a[1]+b[1])/2,d/lastDist);lastDist=d;}});
+const endPtr=e=>{ptrs.delete(e.pointerId);lastDist=0;if(!ptrs.size)svgEl.classList.remove('drag')};
+svgEl.addEventListener('pointerup',endPtr);svgEl.addEventListener('pointercancel',endPtr);
+svgEl.addEventListener('dblclick',fit);
+$('zIn').addEventListener('click',()=>zoomAt(380,310,1.4));
+$('zOut').addEventListener('click',()=>zoomAt(380,310,1/1.4));
+$('zFit').addEventListener('click',fit);
+
+/* knife: rotates around its slice; pulled far out it detaches, dropped on a slice it attaches */
+const knife=$('knife');let drag=null;
+function attach(mx,my){
+  const ang=Math.atan2(my-vy,mx-vx);let hit=null,side='start';
+  for(const S of slices){const p=sp(S),dx=mx-vx-p.ox,dy=my-vy-p.oy,rel=md(Math.atan2(dy,dx)-S.da);
+    if(Math.hypot(dx,dy)<=S.dr*dsc+10&&rel<=S.dth){hit=S;side=rel<S.dth/2?'start':'end';break}}
+  if(!hit&&Math.hypot(mx-vx,my-vy)<=Rmax()*dsc*1.05+10){let best=1e9;      // nearest cut edge of any slice
+    slices.forEach(S=>[['start',S.da],['end',S.da+S.dth]].forEach(([sd,e])=>{const dd=Math.abs(wrap(ang-e));if(dd<best){best=dd;hit=S;side=sd}}));}
+  if(hit){kn.sid=hit.id;kn.side=side;kn.free=false}}
+knife.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();knife.setPointerCapture(e.pointerId);
+  const[mx,my]=toView(e),kp=knifePose();
+  drag=kp.S?{m:'rot',S:kp.S,side:kn.side,off:wrap(Math.atan2(my-kp.oy,mx-kp.ox)-(kn.side==='start'?kp.S.a:kp.S.a+kp.S.th))}
+           :{m:'move',gx:(mx-vx)/dsc-kn.wx,gy:(my-vy)/dsc-kn.wy};
+  knife.style.cursor='grabbing'});
+knife.addEventListener('pointermove',e=>{if(!drag)return;const[mx,my]=toView(e);
+  if(drag.m==='rot'){
+    const S=drag.S,p=sp(S),apx=vx+p.ox,apy=vy+p.oy;
+    if(Math.hypot(mx-apx,my-apy)>S.dr*dsc+125){                 // pulled out of the pizza: detach
+      const kp=knifePose(),g=kp.g,hx=g.be+g.hl/2;
+      kn.wx=(kp.ox+hx*Math.cos(kp.rot)-vx)/dsc;kn.wy=(kp.oy+hx*Math.sin(kp.rot)-vy)/dsc;kn.sy=kp.sy;kn.free=true;
+      drag={m:'move',gx:(mx-vx)/dsc-kn.wx,gy:(my-vy)/dsc-kn.wy};return;}
+    const edge=drag.side==='start'?S.a:S.a+S.th;
+    moveEdge(S,drag.side,wrap(Math.atan2(my-apy,mx-apx)-drag.off-edge));   // a shared cut moves both slices
+    sync(null);
+  }else{kn.wx=(mx-vx)/dsc-drag.gx;kn.wy=(my-vy)/dsc-drag.gy}});
+const stopCut=e=>{if(drag&&drag.m==='move'){const[mx,my]=toView(e);attach(mx,my)}drag=null;knife.style.cursor='grab'};
+knife.addEventListener('pointerup',stopCut);knife.addEventListener('pointercancel',()=>{drag=null;knife.style.cursor='grab'});
+
+/* buttons */
+$('knifeBtn').addEventListener('click',()=>{kn.on=!kn.on;
+  $('knifeBtn').textContent=kn.on?'Hide knife':'Show knife';$('knifeBtn').setAttribute('aria-pressed',kn.on)});
+$('cutBtn').addEventListener('click',()=>{cutOn=!cutOn;if(!cutOn)slices.forEach(S=>{S.fx=0;S.fy=0});
+  $('cutBtn').textContent=cutOn?'Uncut: put the slices back':'Cut: take the slices out';$('cutBtn').setAttribute('aria-pressed',cutOn)});
+$('handBtn').addEventListener('click',()=>{handOn=!handOn;$('handBtn').setAttribute('aria-pressed',handOn);svgEl.classList.toggle('hand',handOn)});
+let front=false;
+$('gridBtn').addEventListener('click',()=>{
+  front=!front;svgEl.insertBefore(gridG,front?$('marksL'):$('restG'));
+  $('gridBtn').textContent=front?'Send plane behind pizza':'Bring plane in front of pizza';
+  $('gridBtn').setAttribute('aria-pressed',front);});
+
+function mtogSync(){document.querySelectorAll('.mtog [data-m]').forEach(b=>b.setAttribute('aria-pressed',show[b.dataset.m]));
+  $('mAll').textContent=Object.values(show).some(Boolean)?'Hide all':'Show all'}
+document.querySelectorAll('.mtog [data-m]').forEach(b=>b.addEventListener('click',()=>{show[b.dataset.m]=!show[b.dataset.m];mtogSync()}));
+$('mAll').addEventListener('click',()=>{const on=!Object.values(show).some(Boolean);for(const k in show)show[k]=on;mtogSync()});
+function resetAll(){
+  for(const k in show)show[k]=true;mtogSync();
+  closePop();drag=null;hd=null;svgEl.classList.remove('drag','hand');
+  slices.forEach(killSlice);slices.length=0;nid=1;
+  slices.push(newSlice(15,-PI/8,PI/4,14+56*(PI/4/TAU)));
+  cutOn=true;$('cutBtn').textContent='Uncut: put the slices back';$('cutBtn').setAttribute('aria-pressed',true);
+  handOn=false;$('handBtn').setAttribute('aria-pressed',false);
+  Object.assign(kn,{sid:slices[0].id,free:false,on:true,wx:0,wy:0,rot:0,sy:1,side:'start'});
+  $('knifeBtn').textContent='Hide knife';$('knifeBtn').setAttribute('aria-pressed',true);
+  if(front){front=false;svgEl.insertBefore(gridG,$('restG'));$('gridBtn').textContent='Bring plane in front of pizza';$('gridBtn').setAttribute('aria-pressed',false)}
+  ts=target();dsc=ts;tvx=vx=CX;tvy=vy=CY;lastKey='';
+  renderCards();}
+$('resetBtn').addEventListener('click',resetAll);
+renderCards();requestAnimationFrame(frame);
+</script>
+</body>
+</html>
